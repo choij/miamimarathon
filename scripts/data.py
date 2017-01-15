@@ -1,6 +1,9 @@
 import csv
-import re
 import datetime
+import numpy as np
+import pprint
+
+pp = pprint.PrettyPrinter(indent=4)
 
 def gender( g ):
   if (g == 'M'):
@@ -11,7 +14,7 @@ def gender( g ):
 def toSeconds(h,m,s):
   return int(datetime.timedelta(hours=int(h),minutes=int(m),seconds=int(s)).total_seconds())
 
-def getData():
+def transformRawData():
   with open('../data/Project1_data.csv', 'rb') as f:
     with open('../data/data.csv', 'w') as csvoutput:
       writer = csv.writer(csvoutput)
@@ -24,7 +27,7 @@ def getData():
           writer.writerow( ['Id','Age','Rank','Year','Time','Pace','Sex'] )
           continue
 
-        # Add race time in seconds
+        # Add race/pace time in seconds
         h,m,s = row[5].split(':')
         seconds = toSeconds(h,m,s)
         row.append(seconds)
@@ -35,12 +38,37 @@ def getData():
 
         # Transform M/F to 1/0
         row.append( gender(row[3]) )
+
+        # Remove redundant data
         row.pop(6)
         row.pop(5)
         row.pop(3)
         row.pop(1)
         writer.writerow( row )
 
-#def timeToSeconds:
- 
-getData() 
+def readData():
+  d = np.loadtxt(open("../data/data.csv","rb"),delimiter=",",skiprows=1)
+  n = d.shape[0]
+  m = d.shape[1]
+  return d,n,m
+
+def getAvgTime():
+  d,n,m = readData()
+
+  years = {}
+  for i in range (n):
+    if str(d[i][3]) in years.keys():
+      years[str(d[i][3])][0] += 1
+      years[str(d[i][3])][1] += d[i][4]
+    else:
+      years[str(d[i][3])] = [ 1, d[i][4] ]
+  for year in years.keys():
+    years[year].append(years[year][1]/years[year][0])
+
+  return years
+
+if __name__ == "__main__":
+  #getData() 
+  pp = pprint.PrettyPrinter(indent=4)
+  avg_time = getAvgTime()
+  pp.pprint(avg_time)
