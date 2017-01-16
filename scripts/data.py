@@ -67,6 +67,7 @@ def readData():
 #================================================================================
 def getAvgTime():
   d = readData()
+  n = d.shape[0]
 
   years = {}
   for i in range (n):
