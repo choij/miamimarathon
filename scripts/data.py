@@ -3,17 +3,25 @@ import datetime
 import numpy as np
 import pprint
 
-pp = pprint.PrettyPrinter(indent=4)
-
+#================================================================================
+#                    NUMERIC REPRESENTATION OF GENDER DATA
+#================================================================================
 def gender( g ):
   if (g == 'M'):
     return 1
   else:
     return 0
 
+#================================================================================
+#                      CHANGE TIME FROM HH:MM:SS TO SECONDS
+#================================================================================
 def toSeconds(h,m,s):
-  return int(datetime.timedelta(hours=int(h),minutes=int(m),seconds=int(s)).total_seconds())
+  return int(datetime.timedelta(hours=int(h),minutes=int(m),
+             seconds=int(s)).total_seconds())
 
+#================================================================================
+#                       WRITING DATA FILE FROM RAW DATA
+#================================================================================
 def transformRawData():
   with open('../data/Project1_data.csv', 'rb') as f:
     with open('../data/data.csv', 'w') as csvoutput:
@@ -46,14 +54,19 @@ def transformRawData():
         row.pop(1)
         writer.writerow( row )
 
+#================================================================================
+#                         READ DATA INTO NUMPY MATRIX
+#================================================================================
 def readData():
   d = np.loadtxt(open("../data/data.csv","rb"),delimiter=",",skiprows=1)
-  n = d.shape[0]
-  m = d.shape[1]
-  return d,n,m
+  return d
 
+#================================================================================
+#               GET AVERAGE MARATHON COMPLETION TIME PER YEAR
+#                           >> { year: avg time } 
+#================================================================================
 def getAvgTime():
-  d,n,m = readData()
+  d = readData()
 
   years = {}
   for i in range (n):
@@ -63,12 +76,28 @@ def getAvgTime():
     else:
       years[str(d[i][3])] = [ 1, d[i][4] ]
   for year in years.keys():
-    years[year].append(years[year][1]/years[year][0])
+    years[year] = (years[year][1]/years[year][0])
 
   return years
 
+#================================================================================
+# Returns X matrix (n x m)
+#   >> Features: Id, Age, Year, Time, Pace, Sex
+# Returns Y matrix (n x 1)
+#   >> Rank
+#================================================================================
+def getDataLinearRegression():
+  x = readData()
+  y = x[:,[2]]
+  x = np.delete(x, 2, axis=1)
+  return x,y
+
+
+
+
+
 if __name__ == "__main__":
-  #getData() 
-  pp = pprint.PrettyPrinter(indent=4)
-  avg_time = getAvgTime()
-  pp.pprint(avg_time)
+  x,y = getDataLinearRegression()
+  getAvgTime()
+  print x.shape
+  print y.shape
