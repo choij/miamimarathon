@@ -2,6 +2,7 @@ import csv
 import datetime
 import numpy as np
 import pprint
+import matplotlib.pyplot as plt
 
 #================================================================================
 #                    NUMERIC REPRESENTATION OF GENDER DATA
@@ -99,6 +100,7 @@ def getDataLinearRegression():
 
 if __name__ == "__main__":
   x,y = getDataLinearRegression()
-  getAvgTime()
-  print x.shape
-  print y.shape
+  zeroage = [308, 1229, 6491, 8250, 16673, 16954, 17070, 17902, 18202, 22942, 23714, 26270]
+  for i in range (x.shape[0]):
+    if(x[i][1] != 0 and x[i][0] in zeroage):
+      print x[i]
