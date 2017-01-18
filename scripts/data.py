@@ -3,6 +3,7 @@ import datetime
 import numpy as np
 import pprint
 import matplotlib.pyplot as plt
+import pandas as pd
 
 #================================================================================
 #                    NUMERIC REPRESENTATION OF GENDER DATA
