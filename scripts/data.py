@@ -119,6 +119,9 @@ def histogramAge():
 
 def ageOutliers():
   return 
+
+def setAge(n):
+  return n - (n%5)
  
 def cleanData():
   x,y = getDataLinearRegression()
