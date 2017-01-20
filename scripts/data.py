@@ -70,7 +70,7 @@ def readData():
 def getAvgTime():
   d = readData()
   n = d.shape[0]
-
+  
   years = {}
   for i in range (n):
     if str(d[i][3]) in years.keys():
