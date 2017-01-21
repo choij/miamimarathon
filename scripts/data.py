@@ -117,23 +117,108 @@ def histogramAge():
   print max(age)    # only id's 5143 and 10179 have age>90
   plt.show()
 
-def ageOutliers():
-  return 
+def correctSingleInstanceAge(runnerId,data):
+    rank = int(data[data['Id'] == runnerId]['Rank'])
+    year = int(data[data['Id'] == runnerId]['Year'])
+    rangeOfRunners = data[(data['Rank']>rank-50) & (data['Rank']<rank+50)& (data['Year'] == year)]
+    avgAge = rangeOfRunners['Age'].sum()/rangeOfRunners['Age'].size
 
-def setAge(n):
-  return n - (n%5)
+    index = data[data['Id']==runnerId].index
+    data.set_value(index, 'Age', avgAge)
+    return
+
+def offsetAge(idRecorded,idError,data):
+    ageRecorded = data.loc[idRecorded]['Age']
+    yearRecorded = data.loc[idRecorded]['Year']
+    yearError = data.loc[idError]['Year']
+    offset = yearError - yearRecorded
+    data.set_value(idError, 'Age', ageRecorded+offset)
+    return
+
+def yearsSinceLastRace(runnerId,year,data):
+    runnerAllYears = data[(data['Id']==runnerId) & (data['Year']<year)].sort_values(by='Year')['Year']
+    if( runnerAllYears.size == 0 ):
+        lastYear = year
+    else:
+        lastYear = max(runnerAllYears)
+    return year-lastYear
+   
+def fullMarathonTime(halfMarathonTime,data):
+    return np.round(halfMarathonTime*((26.219/13.095)**1.06))
  
 def cleanData():
-  x,y = getDataLinearRegression()
-  zeroage = getZeroAgeId().keys()
+  data = pd.read_csv('../data/data.csv')
+  zeroAge = data[data['Age'] == 0].index.tolist()
+  runnerId = [data.iloc[x]['Id'] for x in zeroAge]
+  
+  ageCorrectionRunnerIds = [16673,16954,17902,18202,22942]
+  for n in ageCorrectionRunnerIds:
+      correctSingleInstanceAge(n,data)
 
-  for i in range (x.shape[0]):
-    if(x[i][1] != 0 and str(x[i][0]) in zeroage):
-      #print x[i]
-      continue
-    if(x[i][0] in [5143,10179]):
-      print x[i]
+  zeroAge = data[(data['Age'] == 0)&(data['Id'] != 26270) &(data['Id'] != 23714) ].index.tolist()
+  runnerId = [data.iloc[x]['Id'] for x in zeroAge]
+  for i in runnerId:
+      print data[data['Id'] == i].sort_values(by='Year')
+
+  offsetAge(488,489,data)
+  offsetAge(2049,2046,data)
+  offsetAge(10743,10745,data)
+  offsetAge(13066,13065,data)
+  offsetAge(24232,24231,data)
+  data = data.drop([31786])
+
+  print "Floor ages to increments of 5"
+  for i in range (data['Age'].size):
+    data.iloc[i]['Age'] = data.iloc[i]['Age'] - data.iloc[i]['Age']%5
+
+  # Add Temperature Data
+  print "Adding Temperature"
+  temp = {
+      '2003':10.6,
+      '2004':20.6,
+      '2005':18.9,
+      '2006':21.1,
+      '2007':22.2,
+      '2008':17.8,
+      '2009':14.4,
+      '2010':21.7,
+      '2011':11.1,
+      '2012':20.6,
+      '2013':19.4,
+      '2014':22.8,
+      '2015':11.7,
+      '2016':12.2
+  }
+  data['Temp'] = 0.
+
+  for i in data.index.tolist():
+    year = str(int(data.loc[i]['Year']))
+    data.set_value(i,'Temp',temp[year])
+
+  # Add Number of Races
+  print "Adding number of Races"
+  data['raceCount'] = 0
+  for i in data.index.tolist():
+    runnerId = data.loc[i]['Id']
+    count = int(data[data['Id']==runnerId]['Id'].size)
+    data.set_value(i,'raceCount',count)
+
+  for i in data.index.tolist():
+    runnerId = data.loc[i]['Id']
+    year = data.loc[i]['Year']
+    #data.set_value(i,'totalNumRaces',count)
+    data.set_value(i,'yrsSinceLast',int(yearsSinceLastRace(runnerId,year,data)))
+
+  # Riegel's Formula
+  print "Editing 2013 half marathon data"
+  halfMarathonId = data[data['Year']==2013].index.tolist()
+  data['halfMarathonTime'] = np.NaN
+
+  for i in halfMarathonId:
+    time = data.loc[i]['Time']
+    data.set_value(i,'halfMarathonTime',time)
+    data.set_value(i,'Time',int(fullMarathonTime(time,data)))
 
 if __name__ == "__main__":
-  histogramAge()
-  #cleanData()
+  #histogramAge()
+  cleanData()
