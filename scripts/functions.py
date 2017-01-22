@@ -22,8 +22,8 @@ def multiply(A,B):
 
 #Inverse matrix
 def inverse (A):
-    m = 10^-6
-    Ainv = linalg.inv(A + np.eye(A.shape[1]) * m)
+
+    Ainv = linalg.inv(A)
     return Ainv
 
 #Add matricies
@@ -45,30 +45,55 @@ def addOnes(X,size):
     for i in range(length):
         newX[0][i] = X[i]
     return newX
+
+#Err(w) = 2*(X^T*X*w - X^T*Y)
+def errDiff(X,Y,w):
+    Xt =  transpose(X)
+    temp1 = multiply(multiply(Xt,X),w)
+    temp2 = multiply(Xt, Y)
+    err = subtract(temp1,temp2)
+    return multiply(2,err)
          
 #Calculate the weights
 def weights(X,Y):
 #w = (X^T*X)^-1X^T*Y
     X = addOnes(X,2)
     X = transpose(X)
-
     Xt = transpose(X)
-
     temp1 = inverse(multiply(Xt,X))
     temp2 = multiply(Xt,Y)
     w = multiply(temp1,temp2)
     return w
 
+#Recursive function
+def rep(X,Y,wCurr,alpha):
+    return subtract(wCurr,multiply(alpha,errDiff(X,Y,wCurr)))
+    
 #Calculate the gradient error 
-def gradError(w,X,Y):
-#Err(w) = 2*(X^T*X*w - X^T*Y)
-    w = weights(X,Y)
-    Xt =  transpose(X)
-    temp1 = multiply(multiply(Xt,X),w)
-    temp2 = multiply(Xt, Y)
-    err = subtract(temp1,temp2)
-    return multiply(2,err)
+def gradError(X,Y,size):
 
+    wCurr = [[0] for x in range (size)]
+
+
+    epsilon = 10^-6
+    #print w
+    X = addOnes(X,size)
+    X = transpose(X)
+    Y = np.matrix(Y)
+    Y = transpose(Y)
+
+    for i in range (100):
+        alpha = 0.000001/((i + 1.0)**10)
+        wNext = rep (X,Y,wCurr,alpha)
+        if (alpha < 10^-6):
+            alpha = 10^-6
+        if (abs(subtract(wNext,wCurr).all()) < epsilon):
+            break
+        
+        wCurr = wNext
+    return wNext
+
+#Get the data
 def getData():
     data = np.loadtxt(open("../data/data.csv","rb"),delimiter=",",skiprows=1)
     numData = len(data)
@@ -80,7 +105,7 @@ def getData():
     pace = []
     year = []
     for i in range(numData):
-        if (data[i][3] !=2016 and data[i][6] == 1):
+        if (data[i][3] !=2016 ):#and data[i][6] == 1):
         #if (data[i][6] == 1):
             ID.append     (data[i][0])
             age.append    (data[i][1])

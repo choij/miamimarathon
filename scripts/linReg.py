@@ -20,18 +20,19 @@ from functions import multiply, inverse, subtract, transpose, addOnes, weights, 
     
 def ageVpace():
     ID,age,gender,rank,time,pace,year = getData()    
-    plt.plot(age,pace)    
+    plt.scatter(age,pace)    
     print ("Age vs. Pace")
-    w = weights(age,pace)
+    #w = weights (age,pace)
+    w = gradError(age,pace,2)
     print w
     plt.show()
 
 def yearVpace():
     ID,age,gender,rank,time,pace,year = getData()    
-    plt.plot(year,pace)    
+    plt.scatter(year,pace)    
     print ("Year vs. Pace")
     w = weights(year,pace)
-    print w
+    #print w
     plt.show()
     
 def numOfMarVpace():
@@ -73,8 +74,8 @@ def numOfMarVpace():
     print ("# of appareance  vs. Pace")
     plt.show
     
-#ageVpace()
-yearVpace()    
+ageVpace()
+#yearVpace()    
 #numOfMarVpace()        
 
 

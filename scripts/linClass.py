@@ -15,28 +15,44 @@ from numpy.linalg import inv
 import matplotlib.pyplot as plt 
 from numpy.linalg import linalg
 import seaborn as sns
+import math
 
 from functions import multiply, inverse, subtract, transpose, addOnes, weights, gradError, getData
 
-def getData():
-    data = np.loadtxt(open("miamimarathon/data/data.csv","rb"),delimiter=",",skiprows=1)
-    numData = len(data)
-    ID = []
-    age = []
-    gender = []
-    rank = []
-    time = []
-    pace = []
-    year = []
-    for i in range(numData):
-        #if (data[i][3] !=2016 and data[i][6] == 1):
-        if (data[i][6] == 1):
-            ID.append     (data[i][0])
-            age.append    (data[i][1])
-            rank.append   (data[i][2])
-            year.append   (data[i][3])
-            time.append   (data[i][4])
-            pace.append   (data[i][5])
-            gender.append (data[i][6])
-        
-    return ID,age,gender,rank,time,pace,year
+     
+
+    
+def naive (X,n):
+    ID,age,gender,rank,time,pace,year = getData()
+    temp = []
+    variance = []
+    meanX = []
+    X = transpose(X)
+    covar = [[0 for i in range (n)]for j in range (n)]
+    
+    variance.append(np.var(age))
+    meanX.append(np.mean(age))
+    
+    variance.append(np.var(gender))
+    meanX.append(np.mean(gender))
+    
+    variance.append(np.var(pace))
+    meanX.append(np.mean(pace))
+    
+    variance.append(np.var(year))
+    meanX.append(np.mean(year))
+    
+    for i in range (n):
+        covar[i][i] = variance[i]
+
+    for i in range (len(X)):
+        temp.append(X[i] - meanX[i])
+    
+    covarInv = inverse(covar)
+    num = math.exp(multiply(-0.5,(multiply(transpose(temp),multiply(covarInv,temp)))))
+    den = ((math.pi)**0.5) * ((np.linalg.det(covar))**0.5)
+    
+    return num/den
+
+X = [17,1,580,2015]
+print naive(X,4)       
