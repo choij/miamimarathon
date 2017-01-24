@@ -95,7 +95,7 @@ def gradError(X,Y,size):
 
 #Get the data
 def getData():
-    data = np.loadtxt(open("../data/data.csv","rb"),delimiter=",",skiprows=1)
+    data = np.loadtxt(open("../data/dataold.csv","rb"),delimiter=",",skiprows=1)
     numData = len(data)
     ID = []
     age = []
