@@ -2,6 +2,8 @@ import csv
 import datetime
 import numpy as np
 import pprint
+import matplotlib.pyplot as plt
+import pandas as pd
 
 #================================================================================
 #                    NUMERIC REPRESENTATION OF GENDER DATA
@@ -68,7 +70,7 @@ def readData():
 def getAvgTime():
   d = readData()
   n = d.shape[0]
-
+  
   years = {}
   for i in range (n):
     if str(d[i][3]) in years.keys():
@@ -93,12 +95,42 @@ def getDataLinearRegression():
   x = np.delete(x, 2, axis=1)
   return x,y
 
+def getZeroAgeId():
+  x,y = getDataLinearRegression()
+  ids = {}
+  for i in range (x.shape[0]):
+    #if(x[i][1] != 0 and x[i][0] in zeroage):
+    if(x[i][1] == 0):
+      ids[str( x[i][0] )] = x[i][2]
+  return ids
 
+def histogramAge():
+  x,y = getDataLinearRegression()
+  age = x[:,[1]]
+  age = np.transpose(x[:,[1]])[0]
 
+  histogram = plt.figure()
+  plt.hist(age, bins=range(100), facecolor='grey')
+  plt.title('Histogram of Runners\' Ages from Entire Dataset')
+  plt.xlabel('Age')
+  plt.ylabel('Number of Runners')
+  print max(age)    # only id's 5143 and 10179 have age>90
+  plt.show()
 
+def ageOutliers():
+  return 
+ 
+def cleanData():
+  x,y = getDataLinearRegression()
+  zeroage = getZeroAgeId().keys()
+
+  for i in range (x.shape[0]):
+    if(x[i][1] != 0 and str(x[i][0]) in zeroage):
+      #print x[i]
+      continue
+    if(x[i][0] in [5143,10179]):
+      print x[i]
 
 if __name__ == "__main__":
-  x,y = getDataLinearRegression()
-  getAvgTime()
-  print x.shape
-  print y.shape
+  histogramAge()
+  #cleanData()
