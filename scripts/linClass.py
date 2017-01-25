@@ -16,43 +16,77 @@ import matplotlib.pyplot as plt
 from numpy.linalg import linalg
 import seaborn as sns
 import math
+import sys
+sys.setrecursionlimit(10000)
 
-from functions import multiply, inverse, subtract, transpose, addOnes, weights, gradError, getData
+from functions import multiply, inverse, subtract, transpose, addOnes, weights, gradError, getData, addition
 
-     
 
-    
-def naive (X,n):
-    ID,age,gender,rank,time,pace,year = getData()
-    temp = []
-    variance = []
-    meanX = []
-    X = transpose(X)
-    covar = [[0 for i in range (n)]for j in range (n)]
-    
-    variance.append(np.var(age))
-    meanX.append(np.mean(age))
-    
-    variance.append(np.var(gender))
-    meanX.append(np.mean(gender))
-    
-    variance.append(np.var(pace))
-    meanX.append(np.mean(pace))
-    
-    variance.append(np.var(year))
-    meanX.append(np.mean(year))
-    
-    for i in range (n):
-        covar[i][i] = variance[i]
+        
+def sigmoid (a):
+    return 1/(1+np.exp(-a))
 
-    for i in range (len(X)):
-        temp.append(X[i] - meanX[i])
-    
-    covarInv = inverse(covar)
-    num = math.exp(multiply(-0.5,(multiply(transpose(temp),multiply(covarInv,temp)))))
-    den = ((math.pi)**0.5) * ((np.linalg.det(covar))**0.5)
-    
-    return num/den
+def check(w):
+    numData, age, gender, time, numRace, yearLast, Y = getData() 
+    X = [0 for i in range(6)] 
+    error = 0
+    for i in range(numData):
+        X[0] = age[i]
+        X[1] = (gender[i])
+        X[2] = (time[i])
+        X[3] = (numRace[i])
+        X[4] = (yearLast[i]) 
+        X[5] = 1
+        
+        a = multiply(transpose(w),X)
+        proby1 = multiply(Y[i],math.log(sigmoid(a)))
+        proby0 = multiply(1-Y[i],math.log(1-sigmoid(a)))
 
-X = [17,1,580,2015]
-print naive(X,4)       
+        error += proby1 + proby0
+    return error
+
+def sinErr(X,Y,w):
+    w = np.matrix(w)
+    X = np.matrix(X)
+    X = transpose(X)    
+    diff = Y - sigmoid(multiply(transpose(w),X))
+    sinError = multiply(X,diff)
+
+    return sinError
+
+def errDer(w):
+    numData, age, gender, time, numRace, yearLast, Y = getData() 
+    X = [0 for i in range(6)]
+    errorDer = [[0] for i in range(6)]    
+    for i in range(numData):
+        X[0] = age[i]
+        X[1] = (gender[i])
+        X[2] = (time[i])
+        X[3] = (numRace[i])
+        X[4] = (yearLast[i])  
+        X[5] = 1
+        errorDer += sinErr (X,Y[i],w)
+
+    return errorDer    
+
+def weight(wCurr,epsilon):
+    for i in range(100):    
+        error = errDer(wCurr)
+        print i
+        print wCurr
+        alpha = 0.001
+        wNew = addition(wCurr,(multiply(alpha,error)))
+        #print wNew
+        if (abs(subtract(wNew,wCurr)).all() < epsilon):
+            return wNew
+        wCurr = wNew
+    return wCurr
+#    weight(wCurr,epsilon)
+    
+wCurr = [[0] for x in range (6)]
+w = weight(wCurr,1e-6)
+print w
+print check(w)
+
+
+

@@ -94,30 +94,46 @@ def gradError(X,Y,size):
     return wNext
 
 #Get the data
+#def getData():
+#    data = np.loadtxt(open("../data/dataold.csv","rb"),delimiter=",",skiprows=1)
+#    numData = len(data)
+#    ID = []
+#    age = []
+#    gender = []
+#    rank = []
+#    time = []
+#    pace = []
+#    year = []
+#    for i in range(numData):
+#        if (data[i][3] !=2016 ):#and data[i][6] == 1):
+#        #if (data[i][6] == 1):
+#            ID.append     (data[i][0])
+#            age.append    (data[i][1])
+#            rank.append   (data[i][2])
+#            year.append   (data[i][3])
+#            time.append   (data[i][4])
+#            pace.append   (data[i][5])
+#            gender.append (data[i][6])
+#    print age    
+#    return ID,age,gender,rank,time,pace,year
+
 def getData():
-    data = np.loadtxt(open("../data/dataold.csv","rb"),delimiter=",",skiprows=1)
+    data = np.loadtxt(open("../data/XYforY1_forMac.csv","rbU"),delimiter=",",skiprows=1)
     numData = len(data)
-    ID = []
     age = []
     gender = []
-    rank = []
     time = []
-    pace = []
-    year = []
+    numRace = []
+    yearLast = []
+    Y = []
     for i in range(numData):
-        if (data[i][3] !=2016 ):#and data[i][6] == 1):
-        #if (data[i][6] == 1):
-            ID.append     (data[i][0])
-            age.append    (data[i][1])
-            rank.append   (data[i][2])
-            year.append   (data[i][3])
-            time.append   (data[i][4])
-            pace.append   (data[i][5])
-            gender.append (data[i][6])
-        
-    return ID,age,gender,rank,time,pace,year
-    
+        age.append     (data[i][1])
+        gender.append  (data[i][2])
+        time.append    (data[i][3])
+        numRace.append (data[i][4])        
+        yearLast.append(data[i][5])
+        Y.append       (data[i][6])
+    return numData, age, gender, time, numRace, yearLast, Y
 
 
-
-       
+     

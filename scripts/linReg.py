@@ -69,14 +69,15 @@ def numOfMarVpace():
         elif (index == 13):
             rep[12].append(pace[ID.index(i)])
 
-    for i in range(13):
-        sns.stripplot(x=i, y="pace", data=rep[i]);   
-    print ("# of appareance  vs. Pace")
-    plt.show
+#    for i in range(13):
+#        sns.stripplot(x=i, y="pace", data=rep[i]);   
+#    print ("# of appareance  vs. Pace")
+#    plt.show
+    print rep
     
-ageVpace()
+#ageVpace()
 #yearVpace()    
-#numOfMarVpace()        
+numOfMarVpace()        
 
 
        
